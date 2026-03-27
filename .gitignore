@@ -14,3 +14,4 @@ package-lock.json
 .env
 dist/
 .idea
+/.sync-exclude.lst
