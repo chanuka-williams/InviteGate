@@ -8,7 +8,7 @@ const {
   Collection,
   MessageFlags,
 } = require("discord.js");
-const { validateEnv } = require("./validate_env");
+const { validateEnv } = require("./validate-env");
 
 dotenv.config();
 validateEnv();

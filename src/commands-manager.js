@@ -2,7 +2,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 const dotenv = require("dotenv");
 const { REST, Routes } = require("discord.js");
-const { validateEnv } = require("./validate_env");
+const { validateEnv } = require("./validate-env");
 
 dotenv.config();
 validateEnv();
