@@ -51,10 +51,16 @@ const getCommands = () => {
 
 const printHelpMessage = () => {
   console.log("Usage:");
-  console.log("  node deploy.js --deploy         # deploy to dev guild");
-  console.log("  node deploy.js --deploy --global # deploy globally");
-  console.log("  node deploy.js --undeploy        # clear dev guild commands");
-  console.log("  node deploy.js --undeploy --global # clear global commands");
+  console.log(
+    "  node commands-manager.js --deploy         # deploy to dev guild",
+  );
+  console.log("  node commands-manager.js --deploy --global # deploy globally");
+  console.log(
+    "  node commands-manager.js --undeploy        # clear dev guild commands",
+  );
+  console.log(
+    "  node commands-manager.js --undeploy --global # clear global commands",
+  );
 };
 
 const main = async () => {
