@@ -1,0 +1,102 @@
+const fs = require("node:fs");
+const path = require("node:path");
+const dotenv = require("dotenv");
+const { REST, Routes } = require("discord.js");
+dotenv.config();
+
+const argv = process.argv.slice(2);
+const args = {
+  deploy: argv.includes("--deploy") || argv.includes("-d"),
+  undeploy: argv.includes("--undeploy") || argv.includes("-u"),
+  global: argv.includes("--global") || argv.includes("-g"),
+};
+
+const getCommands = () => {
+  const commands = [];
+  const foldersPath = path.join(__dirname, "commands");
+  const commandFolders = fs.readdirSync(foldersPath);
+
+  for (const folder of commandFolders) {
+    const commandsPath = path.join(foldersPath, folder);
+    const commandFiles = fs
+      .readdirSync(commandsPath)
+      .filter((file) => file.endsWith(".js"));
+
+    for (const file of commandFiles) {
+      const filePath = path.join(commandsPath, file);
+      const command = require(filePath);
+      if ("data" in command && "execute" in command) {
+        commands.push(command.data.toJSON());
+      } else {
+        console.log(
+          `[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`,
+        );
+      }
+    }
+  }
+
+  return commands;
+};
+
+const printHelpMessage = () => {
+  console.log("Usage:");
+  console.log("  node deploy.js --deploy         # deploy to dev guild");
+  console.log("  node deploy.js --deploy --global # deploy globally");
+  console.log("  node deploy.js --undeploy        # clear dev guild commands");
+  console.log("  node deploy.js --undeploy --global # clear global commands");
+};
+
+const main = async () => {
+  if (!args.deploy && !args.undeploy) {
+    printHelpMessage();
+    process.exit(0);
+  }
+
+  const rest = new REST().setToken(process.env.BOT_TOKEN);
+
+  if (args.undeploy) {
+    if (args.global) {
+      await rest.put(Routes.applicationCommands(process.env.APPLICATION_ID), {
+        body: [],
+      });
+      console.log("Cleared all global commands.");
+    } else {
+      await rest.put(
+        Routes.applicationGuildCommands(
+          process.env.APPLICATION_ID,
+          process.env.DEV_GUILD_ID,
+        ),
+        { body: [] },
+      );
+      console.log("Cleared all guild commands.");
+    }
+    return;
+  }
+
+  if (args.deploy) {
+    const commands = getCommands();
+
+    console.log(`Deploying ${commands.length} command(s)...`);
+
+    if (args.global) {
+      const data = await rest.put(
+        Routes.applicationCommands(process.env.APPLICATION_ID),
+        { body: commands },
+      );
+      console.log(`Deployed ${data.length} command(s) globally.`);
+    } else {
+      const data = await rest.put(
+        Routes.applicationGuildCommands(
+          process.env.APPLICATION_ID,
+          process.env.DEV_GUILD_ID,
+        ),
+        { body: commands },
+      );
+      console.log(`Deployed ${data.length} command(s) to dev guild.`);
+    }
+  }
+};
+
+main().catch((error) => {
+  console.error(error);
+});
