@@ -60,7 +60,7 @@ async function loadCommands() {
     for (const file of commandFiles) {
       const filePath = path.join(commandsPath, file);
       let command;
-      
+
       try {
         command = require(filePath);
       } catch (error) {
@@ -81,7 +81,10 @@ async function loadCommands() {
 
 async function main() {
   await loadCommands();
-  client.login(process.env.BOT_TOKEN).catch(console.error);
+  await client.login(process.env.BOT_TOKEN);
 }
 
-main().catch(console.error);
+main().catch((error) => {
+  console.error(error);
+  process.exitCode = 1;
+});
