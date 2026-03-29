@@ -2,7 +2,10 @@ const fs = require("node:fs");
 const path = require("node:path");
 const dotenv = require("dotenv");
 const { REST, Routes } = require("discord.js");
+const { validateEnv } = require("./validate_env");
+
 dotenv.config();
+validateEnv();
 
 const argv = process.argv.slice(2);
 const args = {

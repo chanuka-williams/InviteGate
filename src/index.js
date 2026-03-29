@@ -8,8 +8,11 @@ const {
   Collection,
   MessageFlags,
 } = require("discord.js");
+const { validateEnv } = require("./validate_env");
 
 dotenv.config();
+validateEnv();
+
 if (!process.env.BOT_TOKEN) throw new Error("Missing BOT_TOKEN in .env");
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
