@@ -4,8 +4,11 @@
   "description": "",
   "main": "src/index.js",
   "scripts": {
+    "deploy": "node src/commands-manager.js --deploy",
+    "deploy:global": "node src/commands-manager.js --deploy --global",
+    "undeploy": "node src/commands-manager.js --undeploy",
+    "undeploy:global": "node src/commands-manager.js --undeploy --global",
     "dev": "node --watch src/index.js",
-    "deploy": "node src/deploy-commands.js",
     "start": "node src/index.js"
   },
   "dependencies": {
