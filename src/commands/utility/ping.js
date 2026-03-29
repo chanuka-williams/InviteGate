@@ -1,17 +1,10 @@
-import {
-    ChatInputCommandInteraction,
-    MessageFlags,
-    SlashCommandBuilder
-} from "discord.js";
+const { SlashCommandBuilder } = require("discord.js");
 
-export const data = new SlashCommandBuilder()
+module.exports = {
+  data: new SlashCommandBuilder()
     .setName("ping")
-    .setDescription("Returns \"pong!\" if bot is online!");
-
-export async function execute(interaction: ChatInputCommandInteraction){
-    try {
-        await interaction.reply({ content: "pong!", flags: MessageFlags.Ephemeral });
-    } catch (error) {
-        console.error(error);
-    }
-}
+    .setDescription("Replies with Pong!"),
+  async execute(interaction) {
+    await interaction.reply("Pong!");
+  },
+};
