@@ -1,5 +1,17 @@
+const dotenv = require("dotenv");
 const { SlashCommandBuilder, MessageFlags } = require("discord.js");
 const { getInvite, setInvite, deleteInvite } = require("../common/db");
+
+function formatDuration(seconds) {
+  if (seconds == 0) return "forever";
+
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+
+  if (hours == 0) return `${minutes} minute${minutes != 1 ? "s" : ""}`;
+  if (minutes == 0) return `${hours} hour${hours != 1 ? "s" : ""}`;
+  return `${hours} hour${hours != 1 ? "s" : ""} ${minutes} minute${minutes != 1 ? "s" : ""}`;
+}
 
 async function getOrCreateInvite(interaction) {
   const channel = interaction.channel ?? interaction.guild.systemChannel;
@@ -16,7 +28,7 @@ async function getOrCreateInvite(interaction) {
   }
 
   const invite = await channel.createInvite({
-    maxAge: 86400,
+    maxAge: process.env.DISCORD_INVITE_EXPIRE_TIME,
     maxUses: 1,
     unique: true,
   });
@@ -29,7 +41,7 @@ module.exports = {
   data: new SlashCommandBuilder()
     .setName("gen-invite")
     .setDescription(
-      "Generates a 1 time use invite link to the guild that expires in 24 hours.",
+      `Generates a 1 time use invite link to the guild that expires in ${formatDuration(process.env.DISCORD_INVITE_EXPIRE_TIME)}.`,
     ),
   async execute(interaction) {
     const invite = await getOrCreateInvite(interaction);
