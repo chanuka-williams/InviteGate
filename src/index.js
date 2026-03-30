@@ -1,4 +1,3 @@
-const fs = require("node:fs");
 const path = require("node:path");
 const dotenv = require("dotenv");
 const {
@@ -8,7 +7,9 @@ const {
   Collection,
   MessageFlags,
 } = require("discord.js");
-const { validateEnv } = require("./validate-env");
+
+const { validateEnv } = require("./common/validate-env");
+const { getCommands } = require("./common/get-commands");
 
 dotenv.config();
 validateEnv();
@@ -48,34 +49,10 @@ client.on(Events.InteractionCreate, async (interaction) => {
 });
 
 async function loadCommands() {
-  const foldersPath = path.join(__dirname, "commands");
-  const commandFolders = fs.readdirSync(foldersPath);
+  const commands = await getCommands(path.join(__dirname, "commands"));
 
-  for (const folder of commandFolders) {
-    const commandsPath = path.join(foldersPath, folder);
-    const commandFiles = fs
-      .readdirSync(commandsPath)
-      .filter((file) => file.endsWith(".js"));
-
-    for (const file of commandFiles) {
-      const filePath = path.join(commandsPath, file);
-      let command;
-
-      try {
-        command = require(filePath);
-      } catch (error) {
-        console.error(`[ERROR] Failed to load command at ${filePath}`, error);
-        continue;
-      }
-
-      if ("data" in command && "execute" in command) {
-        client.commands.set(command.data.name, command);
-      } else {
-        console.log(
-          `[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`,
-        );
-      }
-    }
+  for (const command of commands) {
+    client.commands.set(command.data.name, command);
   }
 }
 

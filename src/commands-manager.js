@@ -1,8 +1,8 @@
-const fs = require("node:fs");
 const path = require("node:path");
 const dotenv = require("dotenv");
 const { REST, Routes } = require("discord.js");
-const { validateEnv } = require("./validate-env");
+const { validateEnv } = require("./common/validate-env");
+const { getCommands } = require("./common/get-commands");
 
 dotenv.config();
 validateEnv();
@@ -12,42 +12,6 @@ const args = {
   deploy: argv.includes("--deploy") || argv.includes("-d"),
   undeploy: argv.includes("--undeploy") || argv.includes("-u"),
   global: argv.includes("--global") || argv.includes("-g"),
-};
-
-const getCommands = (commandDir) => {
-  const commands = [];
-  const commandDirItems = fs.readdirSync(commandDir);
-
-  for (const item of commandDirItems) {
-    const itemFilePath = path.join(commandDir, item);
-    if (fs.statSync(itemFilePath).isDirectory()) {
-      commands.push(...getCommands(itemFilePath));
-      continue;
-    }
-
-    if (item.endsWith(".js")) {
-      let command;
-      try {
-        command = require(itemFilePath);
-      } catch (error) {
-        console.error(
-          `[ERROR] Failed to load command at ${itemFilePath}`,
-          error,
-        );
-        continue;
-      }
-
-      if ("data" in command && "execute" in command) {
-        commands.push(command.data.toJSON());
-      } else {
-        console.log(
-          `[WARNING] The command at ${itemFilePath} is missing a required "data" or "execute" property.`,
-        );
-      }
-    }
-  }
-
-  return commands;
 };
 
 const printHelpMessage = () => {
@@ -92,14 +56,14 @@ const main = async () => {
   }
 
   if (args.deploy) {
-    const commands = getCommands(path.join(__dirname, "commands"));
+    const commands = await getCommands(path.join(__dirname, "commands"));
 
     console.log(`Deploying ${commands.length} command(s)...`);
 
     if (args.global) {
       const data = await rest.put(
         Routes.applicationCommands(process.env.APPLICATION_ID),
-        { body: commands },
+        { body: commands.map((c) => c.data.toJSON()) },
       );
       console.log(`Deployed ${data.length} command(s) globally.`);
     } else {
@@ -108,7 +72,7 @@ const main = async () => {
           process.env.APPLICATION_ID,
           process.env.DEV_GUILD_ID,
         ),
-        { body: commands },
+        { body: commands.map((c) => c.data.toJSON()) },
       );
       console.log(`Deployed ${data.length} command(s) to dev guild.`);
     }
