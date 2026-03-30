@@ -14,7 +14,7 @@ const args = {
   global: argv.includes("--global") || argv.includes("-g"),
 };
 
-const printHelpMessage = () => {
+function printHelpMessage() {
   console.log("Usage:");
   console.log(
     "  node commands-manager.js --deploy         # deploy to dev guild",
@@ -26,9 +26,9 @@ const printHelpMessage = () => {
   console.log(
     "  node commands-manager.js --undeploy --global # clear global commands",
   );
-};
+}
 
-const main = async () => {
+async function main() {
   if (!args.deploy && !args.undeploy) {
     printHelpMessage();
     process.exit(0);
@@ -77,7 +77,7 @@ const main = async () => {
       console.log(`Deployed ${data.length} command(s) to dev guild.`);
     }
   }
-};
+}
 
 main().catch((error) => {
   console.error(error);
