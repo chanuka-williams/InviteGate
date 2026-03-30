@@ -14,25 +14,26 @@ const args = {
   global: argv.includes("--global") || argv.includes("-g"),
 };
 
-const getCommands = () => {
+const getCommands = (commandDir) => {
   const commands = [];
-  const foldersPath = path.join(__dirname, "commands");
-  const commandFolders = fs.readdirSync(foldersPath);
+  const commandDirItems = fs.readdirSync(commandDir);
 
-  for (const folder of commandFolders) {
-    const commandsPath = path.join(foldersPath, folder);
-    const commandFiles = fs
-      .readdirSync(commandsPath)
-      .filter((file) => file.endsWith(".js"));
+  for (const item of commandDirItems) {
+    const itemFilePath = path.join(commandDir, item);
+    if (fs.statSync(itemFilePath).isDirectory()) {
+      commands.push(...getCommands(itemFilePath));
+      continue;
+    }
 
-    for (const file of commandFiles) {
-      const filePath = path.join(commandsPath, file);
+    if (item.endsWith(".js")) {
       let command;
-
       try {
-        command = require(filePath);
+        command = require(itemFilePath);
       } catch (error) {
-        console.error(`[ERROR] Failed to load command at ${filePath}`, error);
+        console.error(
+          `[ERROR] Failed to load command at ${itemFilePath}`,
+          error,
+        );
         continue;
       }
 
@@ -40,7 +41,7 @@ const getCommands = () => {
         commands.push(command.data.toJSON());
       } else {
         console.log(
-          `[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`,
+          `[WARNING] The command at ${itemFilePath} is missing a required "data" or "execute" property.`,
         );
       }
     }
@@ -91,7 +92,7 @@ const main = async () => {
   }
 
   if (args.deploy) {
-    const commands = getCommands();
+    const commands = getCommands(path.join(__dirname, "commands"));
 
     console.log(`Deploying ${commands.length} command(s)...`);
 
