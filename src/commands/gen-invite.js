@@ -1,4 +1,3 @@
-const dotenv = require("dotenv");
 const { SlashCommandBuilder, MessageFlags } = require("discord.js");
 const { getInvite, setInvite, deleteInvite } = require("../common/db");
 
