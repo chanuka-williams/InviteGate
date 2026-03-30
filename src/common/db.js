@@ -1,5 +1,8 @@
+const fs = require("fs");
 const Database = require("better-sqlite3");
-const db = new Database("./invites.db");
+
+if (!fs.existsSync("./data")) fs.mkdirSync("./data");
+const db = new Database("./data/invites.db");
 
 db.exec(`
   CREATE TABLE IF NOT EXISTS invites (
