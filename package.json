@@ -2,12 +2,14 @@
   "name": "invite-gate",
   "version": "1.0.0",
   "description": "",
-  "main": "dist/index.js",
+  "main": "src/index.js",
   "scripts": {
-    "dev": "tsx watch src/index.ts",
-    "deploy": "tsx src/deploy-commands.ts",
-    "build": "tsc",
-    "start": "node dist/index.js"
+    "deploy": "node src/commands-manager.js --deploy",
+    "deploy:global": "node src/commands-manager.js --deploy --global",
+    "undeploy": "node src/commands-manager.js --undeploy",
+    "undeploy:global": "node src/commands-manager.js --undeploy --global",
+    "dev": "node --watch src/index.js",
+    "start": "node src/index.js"
   },
   "dependencies": {
     "discord.js": "^14.25.1",
@@ -15,11 +17,6 @@
   },
   "overrides": {
     "undici": "^7.0.0"
-  },
-  "devDependencies": {
-    "@types/dotenv": "^6.1.1",
-    "tsx": "^4.21.0",
-    "typescript": "^5.9.3"
   },
   "private": true
 }
