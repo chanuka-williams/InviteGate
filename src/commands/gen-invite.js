@@ -44,7 +44,7 @@ module.exports = {
 
       return interaction.reply({
         content: "Could not fetch guild settings.",
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
 
@@ -56,7 +56,7 @@ module.exports = {
     if (!invite)
       return interaction.reply({
         content: "Could not generate an invite.",
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
 
     const expiresTimestamp = invite.expiresTimestamp;

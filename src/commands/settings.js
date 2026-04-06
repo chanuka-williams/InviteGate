@@ -46,7 +46,7 @@ module.exports = {
         return interaction.reply({
           content:
             "Invalid duration. Use a number followed by `s`, `m`, `h`, or `d` — e.g. `30m`, `6h`, `0s`.",
-          ephemeral: true,
+          flags: MessageFlags.Ephemeral,
         });
       }
 
@@ -55,7 +55,7 @@ module.exports = {
 
       return interaction.reply({
         content: `Invite expiry updated to \`${input === "0s" ? "never" : input}\`.`,
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
   },
