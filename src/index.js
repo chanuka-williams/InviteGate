@@ -10,6 +10,7 @@ const {
 
 const { validateEnv } = require("./common/validate-env");
 const { getCommands } = require("./common/get-commands");
+const { initGuildSettings } = require("./common/db");
 
 dotenv.config();
 validateEnv();
@@ -20,6 +21,7 @@ const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 client.commands = new Collection();
 
 client.once(Events.ClientReady, (readyClient) => {
+  client.guilds.cache.forEach((g) => initGuildSettings(g.id));
   console.log(`Ready! Logged in as ${readyClient.user.tag}!`);
 });
 
