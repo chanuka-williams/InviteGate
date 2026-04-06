@@ -3,8 +3,17 @@ const {
   PermissionFlagsBits,
   MessageFlags,
 } = require("discord.js");
-const { initGuildSettings, setInviteMaxAge } = require("../common/db");
 
+const {
+  initGuildSettings,
+  setInviteMaxAge,
+  getGuildSettings,
+} = require("../common/db");
+
+/**
+ * @param input - Duration with unit: s, m, h, d (e.g. 30m)
+ * @returns Duration in seconds, or null if invalid
+ */
 function parseDuration(input) {
   const match = input.trim().match(/^(\d+)(s|m|h|d)$/i);
   if (!match) return null;
@@ -36,6 +45,18 @@ module.exports = {
                 .setRequired(true),
             ),
         ),
+    )
+    .addSubcommandGroup((group) =>
+      group
+        .setName("get")
+        .setDescription("Get a setting.")
+        .addSubcommand((sub) =>
+          sub
+            .setName("invite-expiry")
+            .setDescription(
+              "How long generated invite links last (e.g. 30m, 6h, 1d, 0s for never).",
+            ),
+        ),
     ),
 
   async execute(interaction) {
@@ -59,6 +80,17 @@ module.exports = {
 
       return interaction.reply({
         content: `Invite expiry updated to \`${input === "0s" ? "never" : input}\`.`,
+        flags: MessageFlags.Ephemeral,
+      });
+    }
+
+    if (group === "get" && sub === "invite-expiry") {
+      const settings = getGuildSettings(interaction.guild.id);
+      const duration =
+        settings.invite_max_age === 0 ? "never" : `${settings.invite_max_age}s`;
+
+      return interaction.reply({
+        content: `Invite expiry is currently set to <t:${Math.floor(Date.now() / 1000) + settings.invite_max_age}:R>.`,
         flags: MessageFlags.Ephemeral,
       });
     }
